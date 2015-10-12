@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="8191" systemVersion="14F27" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" initialViewController="01J-lp-oVM">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="8154"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="EHf-IW-A2E">
+            <objects>
+                <viewController id="01J-lp-oVM" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="Llm-lL-Icb"/>
+                        <viewControllerLayoutGuide type="bottom" id="xb3-aO-Qok"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="Ze5-6b-2t3">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="title" translatesAutoresizingMaskIntoConstraints="NO" id="c8J-hU-4sp">
+                                <rect key="frame" x="0.0" y="0.0" width="240" height="128"/>
+                            </imageView>
+                        </subviews>
+                        <animations/>
+                        <color key="backgroundColor" red="0.1517057393" green="0.5224417093" blue="0.68978851009999997" alpha="1" colorSpace="calibratedRGB"/>
+                        <constraints>
+                            <constraint firstItem="c8J-hU-4sp" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="Lld-Pn-iYb"/>
+                            <constraint firstItem="c8J-hU-4sp" firstAttribute="width" secondItem="Ze5-6b-2t3" secondAttribute="width" id="PNs-0W-2Hu"/>
+                            <constraint firstItem="c8J-hU-4sp" firstAttribute="height" secondItem="Ze5-6b-2t3" secondAttribute="height" id="f5j-Je-tmq"/>
+                            <constraint firstItem="c8J-hU-4sp" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="tHS-eu-ixd"/>
+                        </constraints>
+                        <variation key="default">
+                            <mask key="subviews">
+                                <exclude reference="c8J-hU-4sp"/>
+                            </mask>
+                            <mask key="constraints">
+                                <exclude reference="Lld-Pn-iYb"/>
+                                <exclude reference="PNs-0W-2Hu"/>
+                                <exclude reference="f5j-Je-tmq"/>
+                                <exclude reference="tHS-eu-ixd"/>
+                            </mask>
+                        </variation>
+                        <variation key="widthClass=compact">
+                            <mask key="subviews">
+                                <include reference="c8J-hU-4sp"/>
+                            </mask>
+                            <mask key="constraints">
+                                <include reference="Lld-Pn-iYb"/>
+                                <include reference="PNs-0W-2Hu"/>
+                                <include reference="f5j-Je-tmq"/>
+                                <include reference="tHS-eu-ixd"/>
+                            </mask>
+                        </variation>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="52.5" y="375"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="title" width="1024" height="966"/>
+    </resources>
+</document>
