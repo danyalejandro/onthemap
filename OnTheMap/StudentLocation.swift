@@ -8,7 +8,7 @@
 
 import Foundation
 
-class StudentLocation {
+struct StudentLocation {
 	var createdAt: String! = ""
 	var firstName: String! = ""
 	var lastName: String! = ""
@@ -35,12 +35,19 @@ class StudentLocation {
 			uniqueKey = values!.valueForKey("uniqueKey") as! String!
 			updatedAt = values!.valueForKey("updatedAt") as! String!
 			if !updatedAt.isEmpty {
-				updatedAtDate = updatedAt.substringToIndex(updatedAt.startIndex.advancedBy(10))
+				let dateString = updatedAt.substringToIndex(updatedAt.startIndex.advancedBy(10))
+				let hourString = updatedAt[updatedAt.startIndex.advancedBy(11)..<updatedAt.startIndex.advancedBy(19)]
+				updatedAtDate = dateString + " " + hourString
 			}
 		}
 	}
 
-	// Builds a JSON string with this object's information, for POST purposes
+	// HELPER: TRUE if object is deemed empty
+	func isEmpty() -> Bool {
+		return (firstName == "" && objectId == "")
+	}
+
+	// HELPER: Builds a JSON string with this object's information, for POST purposes
 	func jsonString() -> String {
 		return "{\"uniqueKey\": \"\(uniqueKey)\", \"firstName\": \"\(firstName)\", \"lastName\": \"\(lastName)\",\"mapString\": \"\(mapString)\", \"mediaURL\": \"\(mediaURL)\",\"latitude\": \(latitude), \"longitude\": \(longitude)}"
 	}
@@ -58,10 +65,5 @@ class StudentLocation {
 		print("createdAt = \(createdAt)")
 		print("updatedAt = \(updatedAt)")
 		print("updatedAtDate = \(updatedAtDate)")
-	}
-
-	// Helper: TRUE if object is deemed empty
-	func isEmpty() -> Bool {
-		return (firstName == "" && objectId == "")
 	}
 }

@@ -64,6 +64,49 @@ class UdacityClient: NSObject {
 		})
 	}
 
+	// creates a new Udacity Facebook user session
+	// Runs completion handler after trying to create sesion
+	func createFbSession(access_token: String, callback: (sid: String?, cbError: NSError?) -> Void) {
+		let url = "https://www.udacity.com/api/session"
+		let postBody = "{\"facebook_mobile\": {\"access_token\": \"\(access_token)\"}}"
+		let req = Network.newRequest(url, type: ReqType.POST, jsonBody: postBody)
+
+		Network.runRequest(session, request: req, offset: 5, completionHandler: {(result, error) in
+
+			// GUARD: Was the request successfully run?
+			guard (error == nil) else {
+				callback(sid: nil, cbError: error)
+				return
+			}
+
+			let resDict: NSDictionary = result as! NSDictionary
+
+			// GUARD: Is the "session" key in parsedResult?
+			guard let sessionData = resDict.valueForKey("session") as! NSDictionary? else {
+				callback(sid: nil, cbError: NSError(domain: "createSession", code: 10, userInfo: [
+					"debugMessage": "Cannot find key 'session' in \(result)",
+					"userMessage": "There was a problem contacting the server."
+					]))
+				return
+			}
+
+			// GUARD: Is the "account" key in parsedResult?
+			guard let accountData = resDict.valueForKey("account") as! NSDictionary? else {
+				callback(sid: nil, cbError: NSError(domain: "createSession", code: 11, userInfo: [
+					"debugMessage": "Cannot find key 'account' in \(result)",
+					"userMessage": "There was a problem contacting the server."
+					]))
+				return
+			}
+
+			// Store session id and user id
+			self.sid = sessionData.valueForKey("id")! as! String
+			self.userInfo.uid = accountData.valueForKey("key")! as! String
+
+			callback(sid: String(self.sid), cbError: nil)
+		})
+	}
+
 	// Retrieves and stores current user information
 	func getUserInfo(callback: (cbError: NSError?) -> Void) {
 		let url = "https://www.udacity.com/api/users/\(userInfo.uid)"

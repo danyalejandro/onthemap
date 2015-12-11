@@ -30,12 +30,14 @@ class MapVC: UIViewController, MKMapViewDelegate, ReloadableProtocol {
 	func mapView(mapView: MKMapView, viewForAnnotation annotation: MKAnnotation) -> MKAnnotationView? {
 		let reuseId = "pin"
 
-		var pinView = mapView.dequeueReusableAnnotationViewWithIdentifier(reuseId) as? MKPinAnnotationView
+		var pinView = mapView.dequeueReusableAnnotationViewWithIdentifier(reuseId)
 
 		if pinView == nil {
-			pinView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: reuseId)
+			pinView = MKAnnotationView(annotation: annotation, reuseIdentifier: reuseId)
+
 			pinView!.canShowCallout = true
-			pinView!.pinTintColor = UIColor(red: 1.0, green: 0.0, blue: 0.0, alpha: 1.0)
+			pinView!.image = UIImage(named: "student-icon")
+
 			pinView!.rightCalloutAccessoryView = UIButton(type: .DetailDisclosure)
 		}
 		else {
@@ -44,6 +46,7 @@ class MapVC: UIViewController, MKMapViewDelegate, ReloadableProtocol {
 
 		return pinView
 	}
+
 
 	func mapView(mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
 		if control == view.rightCalloutAccessoryView {
@@ -71,7 +74,7 @@ class MapVC: UIViewController, MKMapViewDelegate, ReloadableProtocol {
 				self.map.removeAnnotations(self.annotations)
 				self.annotations.removeAll()
 
-				for location in ParseClient.sharedInstance.studentLocations {
+				for location in StudentLocations.sharedInstance.locations {
 					let lat = CLLocationDegrees(location.latitude)
 					let long = CLLocationDegrees(location.longitude)
 					let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: long)
@@ -80,7 +83,6 @@ class MapVC: UIViewController, MKMapViewDelegate, ReloadableProtocol {
 					annotation.coordinate = coordinate
 					annotation.title = "\(location.firstName) \(location.lastName)"
 					annotation.subtitle = location.mediaURL
-
 					self.annotations.append(annotation)
 				}
 				self.map.addAnnotations(self.annotations)

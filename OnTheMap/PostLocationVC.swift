@@ -9,16 +9,29 @@
 import UIKit
 import MapKit
 
-class PostLocationVC: UIViewController, MKMapViewDelegate {
+class PostLocationVC: VCAdaptToKeyBoard, MKMapViewDelegate {
 	@IBOutlet weak var txtLocation: UITextView!
 	@IBOutlet weak var btnFind: UIButton!
 
 	var coordinate: CLLocationCoordinate2D = CLLocationCoordinate2D()
 	var locationText: String! = ""
 
+
     override func viewDidLoad() {
         super.viewDidLoad()
+		atkViewDidLoad()
     }
+
+	override func viewWillAppear(animated: Bool) {
+		super.viewWillAppear(animated)
+		atkViewWillAppear()
+	}
+
+	override func viewWillDisappear(animated: Bool) {
+		super.viewWillDisappear(animated)
+		atkViewWillDisappear()
+	}
+
 
 	@IBAction func btnFindTouch(sender: UIButton) {
 		locationText = txtLocation.text
@@ -30,6 +43,7 @@ class PostLocationVC: UIViewController, MKMapViewDelegate {
 			return
 		}
 
+		self.view.endEditing(true)
 		blockWhileLoading()
 
 		gc.geocodeAddressString(locationText, completionHandler: {(placemarks: [CLPlacemark]?, error: NSError?) in

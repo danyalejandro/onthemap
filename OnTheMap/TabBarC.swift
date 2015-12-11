@@ -7,9 +7,10 @@
 //
 
 import UIKit
+import FBSDKCoreKit
+import FBSDKLoginKit
 
 class TabBarC: UITabBarController {
-	var studentLocs: [StudentLocation] = []
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -36,6 +37,10 @@ class TabBarC: UITabBarController {
 	// Ends user session
 	func logout() {
 		(selectedViewController as! ReloadableProtocol).blockWhileLoading()
+
+		// If there's a facebook session, terminate it as well
+		let loginManager = FBSDKLoginManager()
+		loginManager.logOut()
 
 		UdacityClient.sharedInstance.logout {(error: NSError?) -> Void in
 			// GUARD: was there an error trying to end user session?

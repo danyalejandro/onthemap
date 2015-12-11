@@ -110,7 +110,6 @@ class Network {
 		}
 
 		let request = NSMutableURLRequest(URL: urlObj.URL!)
-		//print("url: \(urlObj.URL)")
 
 		switch (type) {
 		case .GET:

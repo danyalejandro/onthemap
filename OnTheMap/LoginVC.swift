@@ -7,14 +7,18 @@
 //
 
 import UIKit
+import FBSDKCoreKit
+import FBSDKLoginKit
 
-class LoginVC: UIViewController {
+class LoginVC: UIViewController, FBSDKLoginButtonDelegate {
 
 	@IBOutlet weak var txtEmail: UITextField!
 	@IBOutlet weak var txtPassword: UITextField!
+	@IBOutlet weak var lblError: UILabel!
 
 	@IBOutlet weak var btnLogin: UIButton!
 	@IBOutlet weak var btnSignup: UIButton!
+	@IBOutlet weak var btnFbLogin: FBSDKLoginButton!
 
 	var tapRecognizer: UITapGestureRecognizer? = nil
 	var keyboardAdjusted = false
@@ -22,6 +26,8 @@ class LoginVC: UIViewController {
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
+		btnFbLogin.readPermissions = ["public_profile", "email"]
+
 
 		/* Configure tap recognizer for Keyboard show/hide */
 		tapRecognizer = UITapGestureRecognizer(target: self, action: "handleSingleTap:")
@@ -45,9 +51,12 @@ class LoginVC: UIViewController {
 		let email: String = txtEmail.text!
 		let password: String = txtPassword.text!
 
+		lblError.hidden = true
+		self.view.endEditing(true)
+
 		// Check for email & password values
 		guard (email != "" && password != "") else {
-			Alerts.showAlert(self, msg: "Please enter the email and password from your Udacity account.")
+			shakeError("Please enter your Udacity account email and password")
 			return
 		}
 
@@ -59,7 +68,7 @@ class LoginVC: UIViewController {
 			guard (error == nil) else {
 				dispatch_async(dispatch_get_main_queue(), {
 					self.unblockAfterLoading()
-					Alerts.showAlert(self, msg: String(error!.userInfo["userMessage"]!))
+					self.shakeError(String(error!.userInfo["userMessage"]!))
 					print(error!.userInfo["debugMessage"]!)
 				})
 				return
@@ -69,6 +78,20 @@ class LoginVC: UIViewController {
 				self.retrieveUserInfo()
 			})
 		})
+	}
+
+
+
+	// Shake the window and show an error message
+	func shakeError(message: String) {
+		let animation:CAKeyframeAnimation = CAKeyframeAnimation(keyPath: "transform.translation.y")
+		animation.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionLinear)
+		animation.duration = 0.6
+		animation.values = [-20, 20, -10, 10, -5, 5, 0]
+		self.view.layer.addAnimation(animation, forKey: "shake")
+
+		lblError.text = message
+		lblError.hidden = false
 	}
 
 	// Retrieve and store Udacity user information for later use
@@ -92,6 +115,7 @@ class LoginVC: UIViewController {
 	}
 
 	func retrieveLocationInfo() {
+		print("retrieving user location")
 		ParseClient.sharedInstance.searchLocation(UdacityClient.sharedInstance.userInfo.uid, callback: {(location: StudentLocation?, error: NSError?) in
 			// GUARD: An error happened?
 			guard (error == nil) else {
@@ -105,6 +129,7 @@ class LoginVC: UIViewController {
 
 			// No errors -> show next view
 			dispatch_async(dispatch_get_main_queue(), {
+				self.txtPassword.text = ""
 				self.unblockAfterLoading()
 				let controller = self.storyboard!.instantiateViewControllerWithIdentifier("mapNavController") as! UINavigationController
 				self.presentViewController(controller, animated: true, completion: nil)
@@ -131,6 +156,53 @@ class LoginVC: UIViewController {
 		btnLogin.alpha = 1.0
 		LoadingOverlay.shared.hideOverlay() // hide loading overlay
 	}
+}
+
+// LoginVC (Facebook delegate)
+extension LoginVC {
+
+	// On facebook login, creade udacity sesion (facebook started) and continue as expected
+	func loginButton(loginButton: FBSDKLoginButton!, didCompleteWithResult result: FBSDKLoginManagerLoginResult!, error: NSError!) {
+		lblError.hidden = true
+
+		if (!result.isCancelled) {
+			blockWhileLoading()
+
+			let udaClient = UdacityClient.sharedInstance
+			udaClient.createFbSession(result.token.tokenString, callback: {(sid: String?, error: NSError?) -> Void in
+				// GUARD: An error happened?
+				guard (error == nil) else {
+					dispatch_async(dispatch_get_main_queue(), {
+						self.unblockAfterLoading()
+
+						// Custom error for when we cannot login into Udacity using Facebook
+						var userMessage = String(error!.userInfo["userMessage"]!)
+						if (error!.code == 2) {
+							userMessage = "Unable to login into Udacity using Facebook session"
+						}
+						self.shakeError(userMessage)
+						print(error!.userInfo["debugMessage"]!)
+
+						// just in case, log out
+						let loginManager = FBSDKLoginManager()
+						loginManager.logOut()
+					})
+					return
+				}
+
+				dispatch_async(dispatch_get_main_queue(), {
+					self.retrieveUserInfo()
+				})
+			})
+		}
+	}
+
+
+	func loginButtonDidLogOut(loginButton: FBSDKLoginButton!) {
+		lblError.hidden = true
+		print("Facebook session closed.")
+	}
+	
 }
 
 

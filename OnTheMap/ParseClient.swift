@@ -11,7 +11,6 @@ class ParseClient: NSObject {
 	var session: NSURLSession
 	var apiKey: String! = "QuWThTdiRmTux3YaDseUSEpUKo7aBYM737yKd4gY"
 	var appId: String! = "QrX47CA9cyuGewLdsL7o5Eb8iug6Em8ye0dnAbIr"
-	var studentLocations: [StudentLocation] = []
 	var myLocation: StudentLocation = StudentLocation()
 
 	static let sharedInstance = ParseClient() // Singleton pattern
@@ -28,6 +27,7 @@ class ParseClient: NSObject {
 
 		let req = Network.newRequest(url, type: ReqType.GET, query: queryData)
 		addMandatoryValues(req)
+		print("loading locations...")
 
 		Network.runRequest(session, request: req, completionHandler: {(result, error) in
 			// GUARD: Was the request successfully run?
@@ -40,8 +40,9 @@ class ParseClient: NSObject {
 			let dicResult = result as! NSDictionary
 			let arrayDicts = dicResult.valueForKey("results") as! [NSDictionary]
 
+			StudentLocations.sharedInstance.clear()
 			for dicLocation in arrayDicts {
-				self.studentLocations.append(StudentLocation(values: dicLocation))
+				StudentLocations.sharedInstance.add(dicLocation)
 			}
 
 			callback(cbError: nil)
@@ -49,7 +50,7 @@ class ParseClient: NSObject {
 	}
 
 	// Posts a new student location to the server
-	func newLocation(location: StudentLocation, callback: (cbError: NSError?) -> Void) {
+	func newLocation(var location: StudentLocation, callback: (cbError: NSError?) -> Void) {
 		let url = "https://api.parse.com/1/classes/StudentLocation"
 
 		let req = Network.newRequest(url, type: ReqType.POST, jsonBody: location.jsonString())
@@ -111,6 +112,7 @@ class ParseClient: NSObject {
 	}
 
 	// Loads a student location from the server, given the user id
+	// Returns nil if not found
 	func searchLocation(uid: String, callback: (location: StudentLocation?, cbError: NSError?) -> Void) {
 		let url = "https://api.parse.com/1/classes/StudentLocation"
 		let req = Network.newRequest(url, type: ReqType.GET, query: ["where": "{\"uniqueKey\":\"\(uid)\"}"])
@@ -134,6 +136,7 @@ class ParseClient: NSObject {
 					]))
 				return
 			}
+
 
 			// GUARD: Did the service return results? If no error or results, return nil
 			guard let locationsFound = resDict.valueForKey("results") else {

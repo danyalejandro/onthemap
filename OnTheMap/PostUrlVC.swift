@@ -9,7 +9,7 @@
 import UIKit
 import MapKit
 
-class PostUrlVC: UIViewController, MKMapViewDelegate {
+class PostUrlVC: VCAdaptToKeyBoard, MKMapViewDelegate {
 
 	var coordinate: CLLocationCoordinate2D = CLLocationCoordinate2D()
 	var locationName: String! = ""
@@ -18,9 +18,16 @@ class PostUrlVC: UIViewController, MKMapViewDelegate {
 	@IBOutlet weak var txtUrl: UITextField!
 	@IBOutlet weak var map: MKMapView!
 	@IBOutlet weak var btnSubmit: UIButton!
+	@IBOutlet weak var btnViewUrl: UIButton!
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
+		atkViewDidLoad()
+	}
+
+	override func viewWillDisappear(animated: Bool) {
+		super.viewWillDisappear(animated)
+		atkViewWillDisappear()
 	}
 
 	override func viewWillAppear(animated: Bool) {
@@ -30,6 +37,9 @@ class PostUrlVC: UIViewController, MKMapViewDelegate {
 		map.addAnnotation(annotation)
 		map.selectAnnotation(annotation, animated: true)
 		centerMapOnLocation()
+
+		atkViewWillAppear()
+		super.viewWillAppear(animated)
 	}
 
 	@IBAction func btCancelTouch(sender: UIButton) {
@@ -45,7 +55,7 @@ class PostUrlVC: UIViewController, MKMapViewDelegate {
 
 		// build student location object
 		let userInfo = UdacityClient.sharedInstance.userInfo
-		let studentLoc = StudentLocation()
+		var studentLoc = StudentLocation()
 		
 		studentLoc.uniqueKey = userInfo.uid
 		studentLoc.mapString = locationName
@@ -55,6 +65,7 @@ class PostUrlVC: UIViewController, MKMapViewDelegate {
 		studentLoc.firstName = userInfo.first_name
 		studentLoc.lastName = userInfo.last_name
 
+		self.view.endEditing(true)
 		blockWhileLoading()
 
 		// If this user has already placed a pin on the map, update it. If not, create a new one.
@@ -110,6 +121,18 @@ class PostUrlVC: UIViewController, MKMapViewDelegate {
 		}
 	}
 
+	// Preview current URL
+	@IBAction func btnViewUrl(sender: UIButton) {
+		let enteredUrl = txtUrl.text! as String
+		if let validURL: NSURL = NSURL(string: enteredUrl) {
+			// Successfully constructed an NSURL; open it
+			UIApplication.sharedApplication().openURL(validURL)
+		} else {
+			Alerts.showAlert(self, msg: "Please enter a valid URL.")
+		}
+	}
+
+
 	func mapView(mapView: MKMapView, viewForAnnotation annotation: MKAnnotation) -> MKAnnotationView? {
 		let reuseId = "pin"
 
@@ -145,5 +168,4 @@ class PostUrlVC: UIViewController, MKMapViewDelegate {
 		btnSubmit.alpha = 1.0
 		LoadingOverlay.shared.hideOverlay() // hide loading overlay
 	}
-
 }

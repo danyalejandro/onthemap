@@ -9,10 +9,7 @@
 import UIKit
 
 class ListVC: UITableViewController, ReloadableProtocol {
-	var studentLocations: [StudentLocation] = []
-
 	@IBOutlet var listTable: UITableView!
-
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -22,7 +19,7 @@ class ListVC: UITableViewController, ReloadableProtocol {
 	}
 
 	override func viewWillAppear(animated: Bool) {
-		if (ParseClient.sharedInstance.studentLocations.count == 0) {
+		if (StudentLocations.sharedInstance.count() == 0) {
 			reloadLocations()
 		}
 		super.viewWillAppear(animated)
@@ -72,14 +69,14 @@ extension ListVC {
 	}
 
 	override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-		return ParseClient.sharedInstance.studentLocations.count
+		return StudentLocations.sharedInstance.count()
 	}
 
 	override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
 		let cell = tableView.dequeueReusableCellWithIdentifier("listCell", forIndexPath: indexPath) as! ListCell
 
 		let row = indexPath.row
-		let location: StudentLocation = ParseClient.sharedInstance.studentLocations[row]
+		let location: StudentLocation = StudentLocations.sharedInstance.atIndex(row)
 		cell.lblName?.text = location.firstName + " " + location.lastName
 		cell.lblUptaded?.text = location.updatedAtDate
 		cell.lblUrl?.text = location.mediaURL
@@ -89,7 +86,7 @@ extension ListVC {
 
 	override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
 		let row = indexPath.row
-		let location: StudentLocation = ParseClient.sharedInstance.studentLocations[row]
+		let location: StudentLocation = StudentLocations.sharedInstance.atIndex(row)
 		let url: String! = location.mediaURL
 		if (!url.isEmpty) {
 			UIApplication.sharedApplication().openURL(NSURL(string: url)!)
